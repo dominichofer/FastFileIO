@@ -33,15 +33,18 @@ class SmallFilesBenchmarker:
     def read_files(self) -> int:
         bytes_read = 0
         start = time.time()
-        for file in self.files:
-            with open(file, 'rb') as f:
-                data = f.read()
-                if not data:
+        try:
+            for file in self.files:
+                with open(file, 'rb') as f:
+                    data = f.read()
+                    if not data:
+                        break
+                    bytes_read += len(data)
+                duration = time.time() - start
+                if duration > self.time_limit:
                     break
-                bytes_read += len(data)
-            duration = time.time() - start
-            if duration > self.time_limit:
-                break
+        except FileNotFoundError:
+            pass
         return bytes_read
 
     def bench_write(self) -> SmallFilesBandwidth:
