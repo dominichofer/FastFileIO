@@ -10,10 +10,11 @@ class IoDirection(Enum):
 class Measurement:
     timestamp: datetime
     location: str
+    name: str
     direction: IoDirection
 
     def __str__(self):
-        return f"{self.__class__.__name__}, {self.timestamp}, {self.location}, {self.direction.value}"
+        return f"{self.__class__.__name__}, {self.timestamp}, {self.location}, {self.name}, {self.direction.value}"
 
 @dataclass
 class LargeFileBandwidth(Measurement):
@@ -46,17 +47,18 @@ def parse_measurement(line: str) -> Measurement:
     measurement_type = parts[0]
     timestamp = datetime.fromisoformat(parts[1])
     location = parts[2]
-    direction = IoDirection(parts[3])
+    name = parts[3]
+    direction = IoDirection(parts[4])
 
     if measurement_type == "LargeFileBandwidth":
-        block_size = int(parts[4])
-        bandwidth = float(parts[5])
-        return LargeFileBandwidth(timestamp, location, direction, block_size, bandwidth)
+        block_size = int(parts[5])
+        bandwidth = float(parts[6])
+        return LargeFileBandwidth(timestamp, location, name, direction, block_size, bandwidth)
     elif measurement_type == "SmallFilesBandwidth":
-        bandwidth = float(parts[4])
-        return SmallFilesBandwidth(timestamp, location, direction, bandwidth)
+        bandwidth = float(parts[5])
+        return SmallFilesBandwidth(timestamp, location, name, direction, bandwidth)
     elif measurement_type == "RandomAccess":
-        iops = float(parts[4])
-        return RandomAccess(timestamp, location, direction, iops)
+        iops = float(parts[5])
+        return RandomAccess(timestamp, location, name, direction, iops)
     else:
         raise ValueError(f"Unknown measurement type: {measurement_type}")

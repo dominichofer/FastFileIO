@@ -2,12 +2,12 @@ import os
 import time
 import random
 from datetime import datetime
-from .format import format_bytes
 from .measurements import RandomAccess, IoDirection
 
 class RandomAccessBenchmarker:
-    def __init__(self, location: str, file_size: int, sample_size: int, time_limit: int):
+    def __init__(self, location: str, name: str, file_size: int, sample_size: int, time_limit: int):
         self.location = location
+        self.name = name
         self.filename = os.path.join(location, "random_access_test_file.dat")
         self.file_size = file_size
         self.sample_size = sample_size
@@ -40,6 +40,7 @@ class RandomAccessBenchmarker:
         return RandomAccess(
             timestamp=datetime.now(),
             location=self.location,
+            name=self.name,
             direction=IoDirection.WRITE,
             iops=iops
         )
@@ -63,6 +64,7 @@ class RandomAccessBenchmarker:
         return RandomAccess(
             timestamp=datetime.now(),
             location=self.location,
+            name=self.name,
             direction=IoDirection.READ,
             iops=iops
         )

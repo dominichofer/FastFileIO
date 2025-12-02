@@ -72,13 +72,13 @@ def run_random_access(location: str, output_file: str, repetitions: int, config_
         bm.run(output_file)
     bm.cleanup()
 
-def run_all(location: str, output_file: str, repetitions: int = 1, config_file: str = 'fastfileio.cfg'):
+def run_all(location: str, name: str, output_file: str, repetitions: int = 1, config_file: str = 'fastfileio.cfg'):
     location, output_file, config_file = _setup_paths(location, output_file, config_file)
     config = load_config(config_file)
     
-    bm_large = LargeFileBenchmarker(location, config['big_file_size'], config['time_limit'])
-    bm_small = SmallFilesBenchmarker(location, config['small_file_size'], config['small_files_count'], config['time_limit'])
-    bm_random = RandomAccessBenchmarker(location, config['big_file_size'], config['random_accesses'], config['time_limit'])
+    bm_large = LargeFileBenchmarker(location, name, config['big_file_size'], config['time_limit'])
+    bm_small = SmallFilesBenchmarker(location, name, config['small_file_size'], config['small_files_count'], config['time_limit'])
+    bm_random = RandomAccessBenchmarker(location, name, config['big_file_size'], config['random_accesses'], config['time_limit'])
     
     for _ in range(repetitions):
         for block_size in config['block_sizes']:

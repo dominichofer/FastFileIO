@@ -5,8 +5,9 @@ from .format import format_bytes
 from .measurements import SmallFilesBandwidth, IoDirection
 
 class SmallFilesBenchmarker:
-    def __init__(self, location: str, file_size: int, files_count: int, time_limit: int):
+    def __init__(self, location: str, name: str, file_size: int, files_count: int, time_limit: int):
         self.location = location
+        self.name = name
         self.file_size = file_size
         self.files = [os.path.join(location, f"smallfile_{i}.dat") for i in range(files_count)]
         self.time_limit = time_limit
@@ -56,6 +57,7 @@ class SmallFilesBenchmarker:
         return SmallFilesBandwidth(
             timestamp=datetime.now(),
             location=self.location,
+            name=self.name,
             direction=IoDirection.WRITE,
             bandwidth=bandwidth
         )
@@ -69,6 +71,7 @@ class SmallFilesBenchmarker:
         return SmallFilesBandwidth(
             timestamp=datetime.now(),
             location=self.location,
+            name=self.name,
             direction=IoDirection.READ,
             bandwidth=bandwidth
         )
@@ -84,4 +87,5 @@ class SmallFilesBenchmarker:
             results.append(result)
             f.write(str(result) + '\n')
             f.flush()
+        self.cleanup()
         return results

@@ -5,8 +5,9 @@ from .format import format_bytes
 from .measurements import LargeFileBandwidth, IoDirection
 
 class LargeFileBenchmarker:
-    def __init__(self, location: str, file_size: int, time_limit: int):
+    def __init__(self, location: str, name: str, file_size: int, time_limit: int):
         self.location = location
+        self.name = name
         self.filename = os.path.join(location, "large_file_test.dat")
         self.file_size = file_size
         self.time_limit = time_limit
@@ -54,6 +55,7 @@ class LargeFileBenchmarker:
         return LargeFileBandwidth(
             timestamp=datetime.now(),
             location=self.location,
+            name=self.name,
             direction=IoDirection.WRITE,
             block_size=block_size,
             bandwidth=bandwidth
@@ -68,6 +70,7 @@ class LargeFileBenchmarker:
         return LargeFileBandwidth(
             timestamp=datetime.now(),
             location=self.location,
+            name=self.name,
             direction=IoDirection.READ,
             block_size=block_size,
             bandwidth=bandwidth
@@ -84,4 +87,5 @@ class LargeFileBenchmarker:
             results.append(result)
             f.write(str(result) + '\n')
             f.flush()
+        self.cleanup()
         return results
