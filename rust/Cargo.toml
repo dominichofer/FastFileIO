@@ -1,0 +1,17 @@
+[package]
+name = "fastfileio"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+chrono = "0.4"
+rand = "0.8"
+shellexpand = "3.1"
+
+[[bin]]
+name = "fastfileio"
+path = "src/main.rs"
+
+[lib]
+name = "fastfileio"
+path = "src/lib.rs"
