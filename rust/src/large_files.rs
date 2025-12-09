@@ -1,67 +1,44 @@
-use std::fs::{File, OpenOptions};
+use std::fs::File;
 use std::io::{self, Write, Read, Seek, SeekFrom};
 use std::path::PathBuf;
-use std::time::Instant;
-use crate::format::format_bytes;
-use crate::measurements::{LargeFileBandwidth, IoDirection};
+use std::time::{Duration, Instant};
 use rand::RngCore;
+use crate::config::Config;
 
 pub struct LargeFileBenchmarker {
-    location: String,
+    path: String,
     name: String,
-    filename: PathBuf,
-    file_size: u64,
-    time_limit: u64,
+    time_limit: Duration,
+    file_size: usize,
+    block_size: Vec<usize>,
+    file: PathBuf,
     rnd_data: Vec<u8>,
 }
 
 impl LargeFileBenchmarker {
-    pub fn new(location: &str, name: &str, file_size: u64, time_limit: u64) -> Self {
-        let filename = PathBuf::from(location).join("large_file_test.dat");
-        let mut rnd_data = vec![0u8; file_size as usize];
-        rand::thread_rng().fill_bytes(&mut rnd_data);
-        
+    pub fn new(path: &str, name: &str, config: &Config) -> Self {
         Self {
-            location: location.to_string(),
+            path: path.to_string(),
             name: name.to_string(),
-            filename,
-            file_size,
-            time_limit,
-            rnd_data,
+            time_limit: Duration::from_secs(config.time_limit as u64),
+            file_size: config.large_file_size,
+            block_size: config.block_size.clone(),
+            file: PathBuf::from(path).join("large_file.dat"),
+            rnd_data: vec![0u8; config.large_file_size]
         }
     }
 
-    pub fn cleanup(&self) -> io::Result<()> {
-        if self.filename.exists() {
-            std::fs::remove_file(&self.filename)?;
-        }
-        Ok(())
-    }
+    fn write_chunk(&self, start_pos: usize, end_pos: usize, block_size: usize) -> io::Result<usize> {
+        let mut bytes_written = 0;
+        let start = Instant::now();        
+        let mut file = File::create(&self.file)?;
+        file.seek(SeekFrom::Start(start_pos as u64))?;
+        
+        for i in (start_pos..end_pos).step_by(block_size) {            
+            let written = file.write(&self.rnd_data[i..i + block_size])?;
+            bytes_written += written;
 
-    fn write_chunk(&self, start_pos: u64, end_pos: u64, block_size: u64) -> io::Result<u64> {
-        let mut bytes_written = 0u64;
-        let start = Instant::now();
-        
-        let mut file = OpenOptions::new()
-            .write(true)
-            .create(true)
-            .truncate(true)
-            .open(&self.filename)?;
-        
-        file.seek(SeekFrom::Start(start_pos))?;
-        
-        let mut pos = start_pos;
-        while pos < end_pos {
-            let chunk_size = std::cmp::min(block_size, end_pos - pos) as usize;
-            let start_idx = pos as usize;
-            let end_idx = start_idx + chunk_size;
-            
-            let written = file.write(&self.rnd_data[start_idx..end_idx])?;
-            bytes_written += written as u64;
-            pos += written as u64;
-            
-            let duration = start.elapsed().as_secs();
-            if duration > self.time_limit {
+            if start.elapsed() > self.time_limit {
                 break;
             }
         }
@@ -69,96 +46,62 @@ impl LargeFileBenchmarker {
         Ok(bytes_written)
     }
 
-    fn read_chunk(&self, start_pos: u64, end_pos: u64, block_size: u64) -> io::Result<u64> {
-        let mut bytes_read = 0u64;
+    fn read_chunk(&self, start_pos: usize, end_pos: usize, block_size: usize) -> io::Result<usize> {
+        let mut bytes_read = 0;
         let start = Instant::now();
         
-        let mut file = File::open(&self.filename)?;
-        file.seek(SeekFrom::Start(start_pos))?;
+        let mut file = File::open(&self.file)?;
+        file.seek(SeekFrom::Start(start_pos as u64))?;
         
-        let mut buffer = vec![0u8; block_size as usize];
-        let mut pos = start_pos;
-        
-        while pos < end_pos {
-            let chunk_size = std::cmp::min(block_size, end_pos - pos) as usize;
-            let read = file.read(&mut buffer[..chunk_size])?;
+        let mut buffer = vec![0u8; block_size];
+        for _ in (start_pos..end_pos).step_by(block_size) {
+            let read = file.read(&mut buffer)?;
             if read == 0 {
                 break;
             }
-            bytes_read += read as u64;
-            pos += read as u64;
-            
-            let duration = start.elapsed().as_secs();
-            if duration > self.time_limit {
+            bytes_read += read;
+
+            if start.elapsed() > self.time_limit {
                 break;
             }
         }
-        
         Ok(bytes_read)
     }
 
-    pub fn bench_write(&self, block_size: u64) -> io::Result<LargeFileBandwidth> {
-        let start = Instant::now();
-        let bytes_written = self.write_chunk(0, self.file_size, block_size)?;
-        let duration = start.elapsed().as_secs_f64();
-        let bandwidth = (bytes_written as f64) / duration / (1024.0 * 1024.0);
-        
-        println!("Large files write, {}, block size {}, {} in {:.2} s, {:.0} MiB/s",
-            self.location,
-            format_bytes(block_size),
-            format_bytes(bytes_written),
-            duration,
-            bandwidth);
-        
-        Ok(LargeFileBandwidth::new(
-            self.location.clone(),
-            self.name.clone(),
-            IoDirection::Write,
-            block_size,
-            bandwidth,
-        ))
-    }
+    pub fn run(&mut self, output: &mut File)  -> io::Result<()> {
+        for block_size in &self.block_size {
+            // Prepare random data
+            rand::rng().fill_bytes(&mut self.rnd_data);
 
-    pub fn bench_read(&self, block_size: u64) -> io::Result<LargeFileBandwidth> {
-        let start = Instant::now();
-        let bytes_read = self.read_chunk(0, self.file_size, block_size)?;
-        let duration = start.elapsed().as_secs_f64();
-        let bandwidth = (bytes_read as f64) / duration / (1024.0 * 1024.0);
-        
-        println!("Large files read, {}, block size {}, {} in {:.2} s, {:.0} MiB/s",
-            self.location,
-            format_bytes(block_size),
-            format_bytes(bytes_read),
-            duration,
-            bandwidth);
-        
-        Ok(LargeFileBandwidth::new(
-            self.location.clone(),
-            self.name.clone(),
-            IoDirection::Read,
-            block_size,
-            bandwidth,
-        ))
-    }
+            // Write
+            let start = Instant::now();
+            let result = self.write_chunk(0, self.file_size, *block_size)?;
+            let duration = start.elapsed().as_secs_f64();
+            let bandwidth = (result as f64) / duration;
+            writeln!(output, "large file bandwidth, write, {:?}, {}, {}, {}, {}",
+                start,
+                self.name,
+                self.path,
+                block_size,
+                bandwidth)?;
+            output.flush()?;
 
-    pub fn run(&self, block_size: u64, output_file: &str) -> io::Result<Vec<LargeFileBandwidth>> {
-        let mut results = Vec::new();
-        let mut file = OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(output_file)?;
-        
-        let result = self.bench_write(block_size)?;
-        writeln!(file, "{}", result)?;
-        file.flush()?;
-        results.push(result);
-        
-        let result = self.bench_read(block_size)?;
-        writeln!(file, "{}", result)?;
-        file.flush()?;
-        results.push(result);
-        
-        self.cleanup()?;
-        Ok(results)
+            // Read
+            let start = Instant::now();
+            let result = self.read_chunk(0, self.file_size, *block_size)?;
+            let duration = start.elapsed().as_secs_f64();
+            let bandwidth = (result as f64) / duration;
+            writeln!(output, "large file bandwidth, read, {:?}, {}, {}, {}, {}",
+                start,
+                self.name,
+                self.path,
+                block_size,
+                bandwidth)?;
+            output.flush()?;
+        }
+
+        // Cleanup
+        std::fs::remove_file(&self.file)?;
+        Ok(())
     }
 }

@@ -1,85 +1,41 @@
-use fastfileio::{run_all, run_random_access, run_large_files, run_small_files};
+mod config;
+mod large_files;
+mod small_files;
+mod random_access;
+use config::Config;
+use large_files::LargeFileBenchmarker;
+use small_files::SmallFilesBenchmarker;
+use random_access::RandomAccessBenchmarker;
 use std::env;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     
     if args.len() < 2 {
-        println!("Usage: fastfileio <command> [args...]");
-        println!("Commands:");
-        println!("  all <location> <name> <output_file> [repetitions] [config_file]");
-        println!("  large <location> <name> <output_file> [repetitions] [config_file]");
-        println!("  small <location> <name> <output_file> [repetitions] [config_file]");
-        println!("  random <location> <name> <output_file> [repetitions] [config_file]");
+        println!("Usage: <path> <name> <config_file> <output_file> [repetitions]");
         return;
     }
 
-    let command = &args[1];
+    let path = &args[1];
+    let name = &args[2];
+    let config_file = &args[3];
+    let output_file = &args[4];
+    let repetitions = args.get(5).and_then(|s| s.parse().ok()).unwrap_or(1);
     
-    match command.as_str() {
-        "all" => {
-            if args.len() < 5 {
-                eprintln!("Usage: fastfileio all <location> <name> <output_file> [repetitions] [config_file]");
-                return;
-            }
-            let location = &args[2];
-            let name = &args[3];
-            let output_file = &args[4];
-            let repetitions = args.get(5).and_then(|s| s.parse().ok()).unwrap_or(1);
-            let config_file = args.get(6).map(|s| s.as_str()).unwrap_or("fastfileio.cfg");
-            
-            if let Err(e) = run_all(location, name, output_file, repetitions, config_file) {
-                eprintln!("Error: {}", e);
-            }
-        }
-        "large" => {
-            if args.len() < 5 {
-                eprintln!("Usage: fastfileio large <location> <name> <output_file> [repetitions] [config_file]");
-                return;
-            }
-            let location = &args[2];
-            let name = &args[3];
-            let output_file = &args[4];
-            let repetitions = args.get(5).and_then(|s| s.parse().ok()).unwrap_or(1);
-            let config_file = args.get(6).map(|s| s.as_str()).unwrap_or("fastfileio.cfg");
-            
-            if let Err(e) = run_large_files(location, name, output_file, repetitions, config_file) {
-                eprintln!("Error: {}", e);
-            }
-        }
-        "small" => {
-            if args.len() < 5 {
-                eprintln!("Usage: fastfileio small <location> <name> <output_file> [repetitions] [config_file]");
-                return;
-            }
-            let location = &args[2];
-            let name = &args[3];
-            let output_file = &args[4];
-            let repetitions = args.get(5).and_then(|s| s.parse().ok()).unwrap_or(1);
-            let config_file = args.get(6).map(|s| s.as_str()).unwrap_or("fastfileio.cfg");
-            
-            if let Err(e) = run_small_files(location, name, output_file, repetitions, config_file) {
-                eprintln!("Error: {}", e);
-            }
-        }
-        "random" => {
-            if args.len() < 5 {
-                eprintln!("Usage: fastfileio random <location> <name> <output_file> [repetitions] [config_file]");
-                return;
-            }
-            let location = &args[2];
-            let name = &args[3];
-            let output_file = &args[4];
-            let repetitions = args.get(5).and_then(|s| s.parse().ok()).unwrap_or(1);
-            let config_file = args.get(6).map(|s| s.as_str()).unwrap_or("fastfileio.cfg");
-            
-            if let Err(e) = run_random_access(location, name, output_file, repetitions, config_file) {
-                eprintln!("Error: {}", e);
-            }
-        }
-        _ => {
-            eprintln!("Unknown command: {}", command);
-            eprintln!("Valid commands: all, large, small, random");
-        }
+    let config = Config::load(config_file);
+    let mut large_bm = LargeFileBenchmarker::new(path, name, &config);
+    let mut small_bm = SmallFilesBenchmarker::new(path, name, &config);
+    let mut random_bm = RandomAccessBenchmarker::new(path, name, &config);
+
+    let output = &mut std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(output_file)
+        .expect("Failed to open output file");
+
+    for _ in 0..repetitions {
+        large_bm.run(output).expect("Large file benchmark failed");
+        small_bm.run(output).expect("Small files benchmark failed");
+        random_bm.run(output).expect("Random access benchmark failed");
     }
 }

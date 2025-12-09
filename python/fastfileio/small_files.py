@@ -1,24 +1,15 @@
 import os
 import time
 from datetime import datetime
-from .format import format_bytes
-from .measurements import SmallFilesBandwidth, IoDirection
+from .config import Config
 
 class SmallFilesBenchmarker:
-    def __init__(self, location: str, name: str, file_size: int, files_count: int, time_limit: int):
-        self.location = location
+    def __init__(self, path: str, name: str, config: Config):
+        self.path = path
         self.name = name
-        self.file_size = file_size
-        self.files = [os.path.join(location, f"smallfile_{i}.dat") for i in range(files_count)]
-        self.time_limit = time_limit
-        self.rnd_data = [os.urandom(file_size) for _ in range(files_count)]
-
-    def cleanup(self) -> None:
-        for file in self.files:
-            try:
-                os.remove(file)
-            except FileNotFoundError:
-                pass
+        self.time_limit = config.time_limit
+        self.files = [os.path.join(path, f"small_file_{i}.dat") for i in range(config.small_files_count)]
+        self.rnd_data = [bytearray(self.file_size) for _ in range(config.small_files_count)]
 
     def write_files(self) -> int:
         bytes_written = 0
