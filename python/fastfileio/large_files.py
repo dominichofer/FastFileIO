@@ -1,6 +1,6 @@
 import os
 import time
-from datetime import datetime
+from typing import TextIO
 from .config import Config
 
 class LargeFileBenchmarker:
@@ -11,7 +11,7 @@ class LargeFileBenchmarker:
         self.file_size = config.large_file_size
         self.block_size = config.block_size
         self.file = os.path.join(path, "large_file.dat")
-        self.rnd_data = bytearray(block_size)
+        self.rnd_data = bytearray(config.large_file_size)
 
     def write_chunk(self, start_pos: int, end_pos: int, block_size: int) -> int:
         bytes_written = 0
@@ -39,7 +39,7 @@ class LargeFileBenchmarker:
                     break
         return bytes_read
     
-    def run(self, output: File) -> None:
+    def run(self, output: TextIO) -> None:
         for block_size in self.block_size:
             # Prepare random data
             self.rnd_data = os.urandom(self.file_size)
@@ -49,7 +49,7 @@ class LargeFileBenchmarker:
             result = self.write_chunk(0, self.file_size, block_size)
             duration = time.time() - start
             bandwidth = result / duration
-            now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            now = start.strftime("%Y-%m-%d %H:%M:%S")
             output.write(f"large file bandwidth, write, {now}, {self.name}, {self.path}, {block_size}, {bandwidth}\n")
             output.flush()
 
@@ -58,7 +58,7 @@ class LargeFileBenchmarker:
             result = self.read_chunk(0, self.file_size, block_size)
             duration = time.time() - start
             bandwidth = result / duration
-            now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            now = start.strftime("%Y-%m-%d %H:%M:%S")
             output.write(f"large file bandwidth, read, {now}, {self.name}, {self.path}, {block_size}, {bandwidth}\n")
             output.flush()
 

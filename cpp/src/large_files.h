@@ -1,30 +1,28 @@
 #pragma once
-#include "measurements.h"
+#include <chrono>
+#include <filesystem>
+#include <ostream>
 #include <string>
 #include <vector>
-#include <fstream>
+#include "config.h"
 
 class LargeFileBenchmarker {
 public:
-    LargeFileBenchmarker(const std::string& location,
-                         const std::string& name,
-                         double time_limit = 5.0,
-                         size_t big_file_size = 10ULL * 1024 * 1024 * 1024);
-    
-    ~LargeFileBenchmarker();
+    LargeFileBenchmarker(std::string path,
+                         std::string name,
+                         const Config&);
 
-    LargeFileBandwidth benchmark_write(size_t block_size);
-    LargeFileBandwidth benchmark_read(size_t block_size);
-    void run(const std::string& output_file, const std::vector<size_t>& block_sizes);
-    void cleanup();
-
+    void run(std::ostream& output);
+                         
 private:
-    std::string location_;
-    std::string name_;
-    double time_limit_;
-    size_t big_file_size_;
-    std::string file_path_;
-    std::vector<char> random_data_;
+    size_t write_chunk(size_t start_pos, size_t end_pos, size_t block_size);
+    size_t read_chunk(size_t start_pos, size_t end_pos, size_t block_size);
 
-    void generate_random_data();
+    std::string path;
+    std::string name;
+    std::chrono::seconds time_limit;
+    size_t file_size;
+    std::vector<size_t> block_size;
+    std::filesystem::path file;
+    std::vector<uint8_t> rnd_data;
 };

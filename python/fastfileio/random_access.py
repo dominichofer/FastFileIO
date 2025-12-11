@@ -1,83 +1,67 @@
 import os
 import time
 import random
-from datetime import datetime
-from .measurements import RandomAccess, IoDirection
+from typing import TextIO
+from .config import Config
 
 class RandomAccessBenchmarker:
-    def __init__(self, location: str, name: str, file_size: int, sample_size: int, time_limit: int):
-        self.location = location
+    def __init__(self, path: str, name: str, config: Config):
+        self.path = path
         self.name = name
-        self.filename = os.path.join(location, "random_access_test_file.dat")
-        self.file_size = file_size
-        self.sample_size = sample_size
-        self.time_limit = time_limit
+        self.time_limit = config.time_limit
+        self.file_size = config.large_file_size
+        self.samples = config.random_accesses
+        self.file = os.path.join(path, "random_access_file.dat")
 
-        with open(self.filename, 'wb') as f:
-            f.write(os.urandom(file_size))
-
-    def cleanup(self) -> None:
-        try:
-            os.remove(self.filename)
-        except FileNotFoundError:
-            pass
-
-    def bench_write(self) -> RandomAccess:
-        positions = random.sample(range(self.file_size), self.sample_size)
+    def bench_write(self) -> int:
+        rnd_pos = random.sample(range(self.file_size), self.samples)
 
         start = time.time()
         writes = 0
-        with open(self.filename, 'r+b') as f:
-            for pos in positions:
+        with open(self.file, 'r+b') as f:
+            for pos in rnd_pos:
                 f.seek(pos)
                 writes += f.write(b'\0')
-                duration = time.time() - start
-                if duration > self.time_limit:
+                if time.time() - start > self.time_limit:
                     break
-        duration = time.time() - start
-        iops = writes / duration
-        print(f"Random writes, {self.location}, {writes} in {duration:.2f} s, {iops:.0f} T/s")
-        return RandomAccess(
-            timestamp=datetime.now(),
-            location=self.location,
-            name=self.name,
-            direction=IoDirection.WRITE,
-            iops=iops
-        )
+        return writes
     
-    def bench_read(self) -> RandomAccess:
-        positions = random.sample(range(self.file_size), self.sample_size)
+    def bench_read(self) -> int:
+        rnd_pos = random.sample(range(self.file_size), self.samples)
 
         start = time.time()
         reads = 0
-        with open(self.filename, 'rb') as f:
-            for pos in positions:
+        with open(self.file, 'rb') as f:
+            for pos in rnd_pos:
                 f.seek(pos)
                 data = f.read(1)
                 reads += len(data)
-                duration = time.time() - start
-                if duration > self.time_limit:
+                if time.time() - start > self.time_limit:
                     break
-        duration = time.time() - start
-        iops = reads / duration
-        print(f"Random reads, {self.location}, {reads} in {duration:.2f} s, {iops:.0f} T/s")
-        return RandomAccess(
-            timestamp=datetime.now(),
-            location=self.location,
-            name=self.name,
-            direction=IoDirection.READ,
-            iops=iops
-        )
+        return reads
     
-    def run(self, output_file: str) -> list[RandomAccess]:
-        results = []
-        with open(output_file, 'a') as f:
-            result = self.bench_write()
-            results.append(result)
-            f.write(str(result) + '\n')
-            f.flush()
-            result = self.bench_read()
-            results.append(result)
-            f.write(str(result) + '\n')
-            f.flush()
-        return results
+    def run(self, output: TextIO) -> None:
+        # Create file with random data
+        with open(self.file, 'wb') as f:
+            f.write(os.urandom(self.file_size))
+        
+        # Write
+        start = time.time()
+        result = self.bench_write()
+        duration = time.time() - start
+        iops = result / duration
+        now = start.strftime("%Y-%m-%d %H:%M:%S")
+        output.write(f"random access IOPS, write, {now}, {self.name}, {self.path}, {iops}\n")
+        output.flush()
+
+        # Read
+        start = time.time()
+        result = self.bench_read()
+        duration = time.time() - start
+        iops = result / duration
+        now = start.strftime("%Y-%m-%d %H:%M:%S")
+        output.write(f"random access IOPS, read, {now}, {self.name}, {self.path}, {iops}\n")
+        output.flush()
+
+        # Cleanup
+        os.remove(self.file)

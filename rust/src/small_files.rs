@@ -9,6 +9,7 @@ pub struct SmallFilesBenchmarker {
     path: String,
     name: String,
     time_limit: Duration,
+    file_size: usize,
     files: Vec<PathBuf>,
     rnd_data: Vec<Vec<u8>>,
 }
@@ -18,19 +19,14 @@ impl SmallFilesBenchmarker {
         let files: Vec<PathBuf> = (0..config.small_file_count)
             .map(|i| PathBuf::from(path).join(format!("small_file_{}.dat", i)))
             .collect();
-        let mut rnd_data = Vec::new();
-        for _ in 0..config.small_file_count {
-            let mut data = vec![0u8; config.small_file_size as usize];
-            rand::rng().fill_bytes(&mut data);
-            rnd_data.push(data);
-        }
         
         Self {
             path: path.to_string(),
             name: name.to_string(),
             time_limit: Duration::from_secs(config.time_limit as u64),
+            file_size: config.small_file_size,
             files,
-            rnd_data,
+            rnd_data: Vec::new(),
         }
     }
 
@@ -73,6 +69,16 @@ impl SmallFilesBenchmarker {
     }
 
     pub fn run(&mut self, output: &mut File)  -> io::Result<()> {
+        // Prepare random data
+        let mut rng = rand::rng();
+        self.rnd_data = (0..self.files.len())
+            .map(|_| {
+                let mut data = vec![0u8; self.file_size];
+                rng.fill_bytes(&mut data);
+                data
+            })
+            .collect();
+        
         // Write
         let start = Instant::now();
         let result = self.write_files()?;
@@ -98,10 +104,8 @@ impl SmallFilesBenchmarker {
         output.flush()?;
 
         // Cleanup
-        for file_path in &self.files {
-            if file_path.exists() {
-                std::fs::remove_file(file_path)?;
-            }
+        for file in &self.files {
+            std::fs::remove_file(file).unwrap();
         }
 
         Ok(())

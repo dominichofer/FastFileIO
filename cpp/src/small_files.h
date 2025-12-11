@@ -1,31 +1,26 @@
 #pragma once
-#include "measurements.h"
+#include <chrono>
+#include <filesystem>
+#include <ostream>
 #include <string>
 #include <vector>
+#include "config.h"
 
 class SmallFilesBenchmarker {
 public:
-    SmallFilesBenchmarker(const std::string& location,
-                          const std::string& name,
-                          double time_limit = 5.0,
-                          size_t small_files_count = 10000,
-                          size_t small_file_size = 1024);
-    
-    ~SmallFilesBenchmarker();
+    SmallFilesBenchmarker(std::string path,
+                          std::string name,
+                          const Config&);
 
-    SmallFilesBandwidth benchmark_write();
-    SmallFilesBandwidth benchmark_read();
-    void run(const std::string& output_file);
-    void cleanup();
+    size_t write_files();
+    size_t read_files();
+    void run(std::ostream& output);
 
 private:
-    std::string location_;
-    std::string name_;
-    double time_limit_;
-    size_t small_files_count_;
-    size_t small_file_size_;
-    std::string dir_path_;
-    std::vector<char> random_data_;
-
-    void generate_random_data();
+    std::string path;
+    std::string name;
+    std::chrono::seconds time_limit;
+    size_t file_size;
+    std::vector<std::filesystem::path> files;
+    std::vector<std::vector<uint8_t>> rnd_data;
 };
