@@ -22,7 +22,7 @@ impl LargeFileBenchmarker {
             name: name.to_string(),
             time_limit: Duration::from_secs(config.time_limit as u64),
             file_size: config.large_file_size,
-            block_size: config.block_size.clone(),
+            block_size: config.block_sizes.clone(),
             file: PathBuf::from(path).join("large_file.dat"),
             rnd_data: vec![0u8; config.large_file_size]
         }
@@ -78,8 +78,7 @@ impl LargeFileBenchmarker {
             let result = self.write_chunk(0, self.file_size, *block_size)?;
             let duration = start.elapsed().as_secs_f64();
             let bandwidth = (result as f64) / duration;
-            writeln!(output, "large file bandwidth, write, {:?}, {}, {}, {}, {}",
-                start,
+            writeln!(output, "large file bandwidth, write, {}, {}, {}, {}",
                 self.name,
                 self.path,
                 block_size,
@@ -91,8 +90,7 @@ impl LargeFileBenchmarker {
             let result = self.read_chunk(0, self.file_size, *block_size)?;
             let duration = start.elapsed().as_secs_f64();
             let bandwidth = (result as f64) / duration;
-            writeln!(output, "large file bandwidth, read, {:?}, {}, {}, {}, {}",
-                start,
+            writeln!(output, "large file bandwidth, read, {}, {}, {}, {}",
                 self.name,
                 self.path,
                 block_size,

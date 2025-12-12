@@ -1,0 +1,8 @@
+time_limit: 1
+random_accesses: 1000
+small_file_count: 10
+small_file_size: 1024  # 1 kiB
+large_file_size: 1048576  # 1 MiB
+block_sizes:
+  - 16384
+  - 65536

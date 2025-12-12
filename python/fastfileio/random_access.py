@@ -50,8 +50,7 @@ class RandomAccessBenchmarker:
         result = self.bench_write()
         duration = time.time() - start
         iops = result / duration
-        now = start.strftime("%Y-%m-%d %H:%M:%S")
-        output.write(f"random access IOPS, write, {now}, {self.name}, {self.path}, {iops}\n")
+        output.write(f"random access IOPS, write, {self.name}, {self.path}, {iops}\n")
         output.flush()
 
         # Read
@@ -59,8 +58,7 @@ class RandomAccessBenchmarker:
         result = self.bench_read()
         duration = time.time() - start
         iops = result / duration
-        now = start.strftime("%Y-%m-%d %H:%M:%S")
-        output.write(f"random access IOPS, read, {now}, {self.name}, {self.path}, {iops}\n")
+        output.write(f"random access IOPS, read, {self.name}, {self.path}, {iops}\n")
         output.flush()
 
         # Cleanup

@@ -7,7 +7,7 @@ pub struct Config {
     pub small_file_count: usize,
     pub small_file_size: usize,
     pub large_file_size: usize,
-    pub block_size: Vec<usize>,
+    pub block_sizes: Vec<usize>,
 }
 
 impl Config {

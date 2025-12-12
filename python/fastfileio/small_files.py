@@ -47,8 +47,7 @@ class SmallFilesBenchmarker:
         result = self.write_files()
         duration = time.time() - start
         bandwidth = result / duration
-        now = start.strftime("%Y-%m-%d %H:%M:%S")
-        output.write(f"small files bandwidth, write, {now}, {self.name}, {self.path}, {bandwidth}\n")
+        output.write(f"small files bandwidth, write, {self.name}, {self.path}, {bandwidth}\n")
         output.flush()
 
         # Read
@@ -56,8 +55,7 @@ class SmallFilesBenchmarker:
         result = self.read_files()
         duration = time.time() - start
         bandwidth = result / duration
-        now = start.strftime("%Y-%m-%d %H:%M:%S")
-        output.write(f"small files bandwidth, read, {now}, {self.name}, {self.path}, {bandwidth}\n")
+        output.write(f"small files bandwidth, read, {self.name}, {self.path}, {bandwidth}\n")
         output.flush()
 
         # Cleanup

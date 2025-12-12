@@ -8,7 +8,7 @@ class Config:
     small_file_count: int
     small_file_size: int
     large_file_size: int
-    block_size: list[int]
+    block_sizes: list[int]
 
     @classmethod
     def load(cls, path: str) -> 'Config':

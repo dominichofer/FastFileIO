@@ -7,13 +7,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Add compile options
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    add_compile_options(-Wall -Wextra -Wpedantic)
+	set(CMAKE_CXX_FLAGS "-march=native -w")
+	set(CMAKE_CXX_FLAGS_DEBUG "-g")
+	set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+elseif(MSVC)
+	set(CMAKE_CXX_FLAGS "/std:c++latest /EHsc /MP")
+	set(CMAKE_CXX_FLAGS_DEBUG "/Od /MDd")
+	set(CMAKE_CXX_FLAGS_RELEASE "/Ox /MD /GL")
 endif()
 
-# Include directories
-include_directories(include)
-
-# Source files
 set(SOURCES
     src/config.cpp
     src/large_files.cpp
@@ -22,8 +24,5 @@ set(SOURCES
     src/main.cpp
 )
 
-# Create executable
 add_executable(fastfileio ${SOURCES})
-
-# Installation
 install(TARGETS fastfileio RUNTIME DESTINATION bin)

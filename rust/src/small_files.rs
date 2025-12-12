@@ -84,8 +84,7 @@ impl SmallFilesBenchmarker {
         let result = self.write_files()?;
         let duration = start.elapsed().as_secs_f64();
         let bandwidth = (result as f64) / duration;
-        writeln!(output, "small files bandwidth, write, {:?}, {}, {}, {}",
-            start,
+        writeln!(output, "small files bandwidth, write, {}, {}, {}",
             self.name,
             self.path,
             bandwidth)?;
@@ -96,8 +95,7 @@ impl SmallFilesBenchmarker {
         let result = self.read_files()?;
         let duration = start.elapsed().as_secs_f64();
         let bandwidth = (result as f64) / duration;
-        writeln!(output, "small files bandwidth, read, {:?}, {}, {}, {}",
-            start,
+        writeln!(output, "small files bandwidth, read, {}, {}, {}",
             self.name,
             self.path,
             bandwidth)?;

@@ -90,8 +90,7 @@ void RandomAccessBenchmarker::run(std::ostream& output) {
     size_t result = bench_write();
     double duration = std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - start).count();
     double iops = static_cast<double>(result) / duration;
-    output << "random access IOPS, write, " << std::chrono::high_resolution_clock::to_time_t(start)
-           << ", " << name << ", " << path << ", " << iops << std::endl;
+    output << "random access IOPS, write, " << name << ", " << path << ", " << iops << std::endl;
     output.flush();
 
     // Read
@@ -99,8 +98,7 @@ void RandomAccessBenchmarker::run(std::ostream& output) {
     result = bench_read();
     duration = std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - start).count();
     iops = static_cast<double>(result) / duration;
-    output << "random access IOPS, read, " << std::chrono::high_resolution_clock::to_time_t(start)
-           << ", " << name << ", " << path << ", " << iops << std::endl;
+    output << "random access IOPS, read, " << name << ", " << path << ", " << iops << std::endl;
     output.flush();
 
     // Cleanup

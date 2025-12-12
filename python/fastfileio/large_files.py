@@ -9,7 +9,7 @@ class LargeFileBenchmarker:
         self.name = name
         self.time_limit = config.time_limit
         self.file_size = config.large_file_size
-        self.block_size = config.block_size
+        self.block_size = config.block_sizes
         self.file = os.path.join(path, "large_file.dat")
         self.rnd_data = bytearray(config.large_file_size)
 
@@ -49,8 +49,7 @@ class LargeFileBenchmarker:
             result = self.write_chunk(0, self.file_size, block_size)
             duration = time.time() - start
             bandwidth = result / duration
-            now = start.strftime("%Y-%m-%d %H:%M:%S")
-            output.write(f"large file bandwidth, write, {now}, {self.name}, {self.path}, {block_size}, {bandwidth}\n")
+            output.write(f"large file bandwidth, write, {self.name}, {self.path}, {block_size}, {bandwidth}\n")
             output.flush()
 
             # Read
@@ -58,8 +57,7 @@ class LargeFileBenchmarker:
             result = self.read_chunk(0, self.file_size, block_size)
             duration = time.time() - start
             bandwidth = result / duration
-            now = start.strftime("%Y-%m-%d %H:%M:%S")
-            output.write(f"large file bandwidth, read, {now}, {self.name}, {self.path}, {block_size}, {bandwidth}\n")
+            output.write(f"large file bandwidth, read, {self.name}, {self.path}, {block_size}, {bandwidth}\n")
             output.flush()
 
         # Cleanup

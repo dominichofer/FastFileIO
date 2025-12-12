@@ -92,8 +92,7 @@ impl RandomAccessBenchmarker {
         let result = self.bench_write()?;
         let duration = start.elapsed().as_secs_f64();
         let iops = (result as f64) / duration;
-        writeln!(output, "random access bandwidth, write, {:?}, {}, {}, {}",
-            start,
+        writeln!(output, "random access IOPS, write, {}, {}, {}",
             self.name,
             self.path,
             iops)?;
@@ -104,8 +103,7 @@ impl RandomAccessBenchmarker {
         let result = self.bench_read()?;
         let duration = start.elapsed().as_secs_f64();
         let iops = (result as f64) / duration;
-        writeln!(output, "random access bandwidth, read, {:?}, {}, {}, {}",
-            start,
+        writeln!(output, "random access IOPS, read, {}, {}, {}",
             self.name,
             self.path,
             iops)?;

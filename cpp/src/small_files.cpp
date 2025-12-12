@@ -12,8 +12,10 @@ SmallFilesBenchmarker::SmallFilesBenchmarker(
       time_limit(std::chrono::seconds(config.time_limit)),
       file_size(config.small_file_size)
 {
-    for (size_t i = 0; i < config.small_file_count; ++i)
+    for (size_t i = 0; i < config.small_file_count; ++i) {
         files.push_back(std::filesystem::path(path) / ("small_file_" + std::to_string(i) + ".dat"));
+        rnd_data.push_back(std::vector<uint8_t>(file_size));
+    }
 }
 
 size_t SmallFilesBenchmarker::write_files() {
@@ -70,8 +72,7 @@ void SmallFilesBenchmarker::run(std::ostream& output) {
     double duration = std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - start).count();
     double bandwidth = static_cast<double>(result) / duration;
 
-    output << "small file bandwidth, write, " << std::chrono::high_resolution_clock::to_time_t(start)
-            << ", " << name << ", " << path << ", " << bandwidth << "\n";
+    output << "small files bandwidth, write, " << name << ", " << path << ", " << bandwidth << "\n";
     output.flush();
 
     // Read
@@ -80,8 +81,7 @@ void SmallFilesBenchmarker::run(std::ostream& output) {
     duration = std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - start).count();
     bandwidth = static_cast<double>(result) / duration;
 
-    output << "small file bandwidth, read, " << std::chrono::high_resolution_clock::to_time_t(start)
-            << ", " << name << ", " << path << ", " << bandwidth << "\n";
+    output << "small files bandwidth, read, " << name << ", " << path << ", " << bandwidth << "\n";
 
     // Cleanup
     for (const auto& file : files)

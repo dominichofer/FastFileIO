@@ -2,47 +2,41 @@
 
 A file I/O benchmarking tool.
 
-# C++
+# Benchmarks
+## C++
 To build the C++ binary into a folder `build`, run
 ```bash
-cmake -S cpp -B build
-cmake --build build
+cmake -S cpp -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build cpp/build
 ```
-To run the provided tests, execute
-```bash
-make -C build test
-```
-(The GitHub actions run them on every commit.)<br>
 To run the binary, use
 ```bash
-./cpp/build/FastFileIO --help
+./cpp/build/fastfileio --help
 ```
 
-# Rust
+## Rust Benchmark
 To build the Rust binary, run
 ```bash
 cd rust
 cargo build --release
 ```
-To run the provided tests, execute
-```bash
-cd rust
-cargo test
-```
-(The GitHub actions run them on every commit.)<br>
 To run the binary, use
 ```bash
 ./rust/target/release/fastfileio --help
 ```
 
-# Python
+## Python Benchmark
 To install the Python package, run
 ```bash
-cd python
-pip install python
+pip install ./python/
+```
+To use the package, you can run
+```bash
+python -m fastfileio --help
+```
 
-# Usage
-The applications take the following command line arguments:
+## Usage
+The benchmarks take the following command line arguments:
 ```
 <path> <name> <config_file> <output_file> [repetitions]
 ```
@@ -53,16 +47,4 @@ where
 - `<output_file>` is the path to a CSV file where the benchmark results will be written,
 - `[repetitions]` is an optional argument specifying how many times to repeat the benchmarks (default is 1).
 
-## C++
-To run the C++ benchmark binary, execute
-```bash
-./build/FastFileIO <path> <name> <config_file> <output_file> [repetitions]
-```
-
-## Rust
-To run the Rust benchmark binary, execute
-```bash
-./target/release/fast_file_io <path> <name> <config_file> <output_file> [repetitions]
-```
-
-## Python
+# Plotting

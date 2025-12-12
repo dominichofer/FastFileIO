@@ -9,7 +9,11 @@ requires-python = ">= 3.10"
 dependencies = [
     "matplotlib",
     "pytest",
+    "pyyaml",
 ]
+
+[tool.setuptools]
+packages = ["fastfileio", "plot"]
 
 [tool.ruff]
 line-length = 100

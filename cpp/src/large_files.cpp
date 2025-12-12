@@ -83,8 +83,7 @@ void LargeFileBenchmarker::run(std::ostream& output) {
         double duration = std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - start).count();
         double bandwidth = static_cast<double>(result) / duration;
         
-        output << "large file bandwidth, write, " << std::chrono::high_resolution_clock::to_time_t(std::chrono::high_resolution_clock::now())
-                << ", " << name << ", " << path << ", " << bs << ", " << bandwidth << "\n";
+        output << std::fixed << "large file bandwidth, write, " << name << ", " << path << ", " << bs << ", " << bandwidth << "\n";
         output.flush();
 
         // Read
@@ -93,8 +92,7 @@ void LargeFileBenchmarker::run(std::ostream& output) {
         duration = std::chrono::duration<double>(std::chrono::high_resolution_clock::now() - start).count();
         bandwidth = static_cast<double>(result) / duration;
         
-        output << "large file bandwidth, read, " << std::chrono::high_resolution_clock::to_time_t(std::chrono::high_resolution_clock::now())
-                << ", " << name << ", " << path << ", " << bs << ", " << bandwidth << "\n";
+        output << std::fixed << "large file bandwidth, read, " << name << ", " << path << ", " << bs << ", " << bandwidth << "\n";
         output.flush();
     }
 
