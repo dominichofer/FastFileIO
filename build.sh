@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # C++
-cmake -S cpp -B build -DCMAKE_BUILD_TYPE=Release
+cmake -S cpp -B cpp/build -DCMAKE_BUILD_TYPE=Release
 cmake --build cpp/build
 
 # Rust

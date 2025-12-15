@@ -1,3 +1,8 @@
+# Test artifacts
+*.png
+test.log
+test_env/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

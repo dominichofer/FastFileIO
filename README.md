@@ -1,6 +1,15 @@
 # FastFileIO
 
-A file I/O benchmarking tool.
+A file I/O benchmarking tool for Python, C++, and Rust.
+
+# Dependencies
+
+- A [Python](https://www.python.org/) interpreter
+- A C++ 17 compiler, such as
+    - [GCC](https://gcc.gnu.org/)
+    - [MSVC](https://visualstudio.microsoft.com/)
+- [Rust](https://rust-lang.org/)
+- [CMake](https://cmake.org/)
 
 # Benchmarks
 ## C++
@@ -47,4 +56,4 @@ where
 - `<output_file>` is the path to a CSV file where the benchmark results will be written,
 - `[repetitions]` is an optional argument specifying how many times to repeat the benchmarks (default is 1).
 
-# Plotting
+# Plots
