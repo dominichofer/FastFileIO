@@ -59,10 +59,10 @@ size_t SmallFilesBenchmarker::read_files() {
 void SmallFilesBenchmarker::run(std::ostream& output) {
     // Prepare random data
     std::mt19937 rng(std::random_device{}());
-    std::uniform_int_distribution<uint8_t> dist(0, 255);
+    std::uniform_int_distribution<int> dist(0, 255);
     for (auto& data : rnd_data) {
         for (auto& byte : data) {
-            byte = dist(rng);
+            byte = static_cast<uint8_t>(dist(rng));
         }
     }
 
