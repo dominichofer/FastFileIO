@@ -7,7 +7,11 @@ set -e  # Exit immediately if a command exits with a non-zero status.
 # Install the python packages
 rm -rf test_env
 python -m venv test_env
-source test_env/bin/activate
+if [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "win32" ]]; then
+  source test_env/Scripts/activate
+else
+  source test_env/bin/activate
+fi
 pip install ./python
 
 # Remove existing log file
