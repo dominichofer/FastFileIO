@@ -43,7 +43,7 @@ size_t SmallFilesBenchmarker::read_files() {
     for (size_t i = 0; i < files.size(); ++i) {
         std::ifstream file(files[i], std::ios::binary);
         if (!file) {
-            throw std::runtime_error("Failed to open file for reading: " + files[i].string());
+            continue;
         }
         file.read(reinterpret_cast<char*>(rnd_data[i].data()), file_size);
         bytes_read += file_size;

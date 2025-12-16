@@ -50,8 +50,10 @@ def plot_large_file_bandwidth(data: list[LargeFileBandwidth], names: set[str]) -
             plt.figure()
             for block_size in block_sizes:
                 bs_data = [m.bandwidth for m in filtered_data if m.block_size == block_size]
+                if not bs_data:
+                    continue
                 x = [block_size] * len(bs_data)
-                plt.scatter(x, bs_data, alpha=clamp(5.0/len(bs_data), 0, 1), color='green')
+                plt.scatter(x, bs_data, alpha=clamp(2.0/len(bs_data), 0, 1), color='green')
             
             plt.xscale('log', base=2)
             plt.xticks(block_sizes, [format_bytes(bs) for bs in block_sizes], rotation=90)
@@ -75,6 +77,8 @@ def plot_small_file_bandwidth(data: list[SmallFilesBandwidth], names: set[str]) 
         plt.figure()
         for name in names:
             bandwidths = [m.bandwidth for m in data if m.name == name and m.direction == direction]
+            if not bandwidths:
+                continue
             x = [name] * len(bandwidths)
             plt.scatter(x, bandwidths, alpha=clamp(2.0/len(bandwidths), 0, 1), color='blue')
             
@@ -96,6 +100,8 @@ def plot_random_access(data: list[RandomAccess], names: set[str]) -> None:
         plt.figure()
         for name in names:
             iops = [m.iops for m in data if m.name == name and m.direction == direction]
+            if not iops:
+                continue
             x = [name] * len(iops)
             plt.scatter(x, iops, alpha=clamp(2.0/len(data), 0, 1), color='red')
 
