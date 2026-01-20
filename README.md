@@ -7,6 +7,7 @@ A file I/O benchmarking tool for Python, C++, and Rust.
 - A [Python](https://www.python.org/) interpreter
 - A C++ 17 compiler, such as
     - [GCC](https://gcc.gnu.org/)
+    - [clang](https://clang.llvm.org/)
     - [MSVC](https://visualstudio.microsoft.com/)
 - [Rust](https://rust-lang.org/)
 
