@@ -1,7 +1,5 @@
-# Test artifacts
+# Artifacts
 *.png
-test.log
-test_env/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -33,3 +31,17 @@ MANIFEST
 .venv
 env/
 venv/
+
+# Rust build files
+target/
+
+# C++ build files
+build/
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+*.lib
+*.a

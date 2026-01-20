@@ -17,11 +17,7 @@ elseif(MSVC)
 endif()
 
 set(SOURCES
-    src/config.cpp
-    src/large_files.cpp
-    src/small_files.cpp
-    src/random_access.cpp
-    src/main.cpp
+	src/main.cpp
 )
 
 add_executable(fastfileio ${SOURCES})

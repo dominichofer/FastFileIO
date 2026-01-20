@@ -8,19 +8,7 @@ version = "0.0.1"
 requires-python = ">= 3.10"
 dependencies = [
     "matplotlib",
-    "pytest",
-    "pyyaml",
 ]
 
 [tool.setuptools]
 packages = ["fastfileio", "plot"]
-
-[tool.ruff]
-line-length = 100
-
-[tool.pylint]
-disable = [
-    "C0114",  # Missing module docstring
-    "C0115",  # Missing class docstring
-    "C0116",  # Missing function or method docstring
-]
