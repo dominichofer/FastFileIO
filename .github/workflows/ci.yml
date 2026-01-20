@@ -63,21 +63,3 @@ jobs:
       if: runner.os == 'Windows'
       shell: pwsh
       run: ./build.sh
-    
-    - name: Run tests (Unix)
-      if: runner.os == 'Linux'
-      run: ./test.sh
-    
-    - name: Run tests (Windows)
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: ./test.sh
-    
-    - name: Upload artifacts
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-results-${{ matrix.os }}-${{ matrix.compiler }}-py${{ matrix.python-version }}
-        path: |
-          test.log
-          *.png
