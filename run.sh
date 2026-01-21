@@ -8,7 +8,7 @@ fi
 TARGET_PATH=$1
 NAME=${2:-""}
 if [ -n "$NAME" ]; then
-    NAME="${NAME} "
+    NAME="${NAME}_"
 fi
 REPETITIONS=${3:-""}
 
