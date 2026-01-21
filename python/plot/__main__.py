@@ -58,11 +58,11 @@ if __name__ == '__main__':
     with open(args.results_file, 'r') as f:
         data = [DataPoint.from_string(line) for line in f if line.strip()]
 
-    names = set(m.name for m in data)
+    names = sorted(set(m.name for m in data))
 
     ylabel = {
-        'large': 'Large files bandwidth (MiB/s)',
-        'small': 'Small files bandwidth (MiB/s)',
+        'large': 'Bandwidth (MiB/s)',
+        'small': 'Bandwidth (MiB/s)',
         'random': 'Transfers per second (IOPS)',
     }
     title = {

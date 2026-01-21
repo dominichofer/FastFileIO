@@ -167,15 +167,17 @@ int main(int argc, char* argv[]) {
         start = std::chrono::high_resolution_clock::now();
         std::vector<std::vector<char>> data(small_file_paths.size());
         for (size_t i = 0; i < small_file_paths.size(); ++i) {
-            if (!fs::exists(small_file_paths[i])) {
-                break;
-            }
+            data[i].resize(small_file_size);
+        }
+        for (size_t i = 0; i < small_file_paths.size(); ++i) {
             std::ifstream f(small_file_paths[i], std::ios::binary | std::ios::ate);
             if (!f) {
                 break;
             }
-            f.read(data[i].data(), small_file_size);
-            bytes_read += small_file_size;
+            std::streamsize size = f.tellg();
+            f.seekg(0, std::ios::beg);
+            f.read(data[i].data(), size);
+            bytes_read += size;
             f.close();
             auto now = std::chrono::high_resolution_clock::now();
             if (std::chrono::duration<double>(now - start).count() > time_limit) {
