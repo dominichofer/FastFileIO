@@ -13,10 +13,10 @@ fi
 REPETITIONS=${3:-""}
 
 # Benchmark C++
-./cpp/build/fastfileio ${TARGET_PATH} ${NAME}cpp $REPETITIONS >> log.txt
+./cpp/build/fastfileio ${TARGET_PATH} ${NAME}cpp $REPETITIONS | tee -a log.txt
 
 # Benchmark Rust
-./rust/target/release/fastfileio ${TARGET_PATH} ${NAME}rust $REPETITIONS >> log.txt
+./rust/target/release/fastfileio ${TARGET_PATH} ${NAME}rust $REPETITIONS | tee -a log.txt
 
 # Benchmark Python
 if [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "win32" ]]; then
@@ -24,7 +24,7 @@ if [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "win32" ]]; then
 else
   source venv/bin/activate
 fi
-python -m fastfileio ${TARGET_PATH} ${NAME}python $REPETITIONS >> log.txt
+python -m fastfileio ${TARGET_PATH} ${NAME}python $REPETITIONS | tee -a log.txt
 
 # Plot
 python -m plot log.txt
